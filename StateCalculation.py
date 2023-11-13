@@ -2,9 +2,9 @@ import numpy as np
 from math import sin, cos
 
 def simulateSensorData(state, input, odometer_noise_variance, sonar_noise_variance):
-    odometer = []
-    sonar = []
-    actual = []
+    odometer = [state]
+    sonar = [state]
+    actual = [state]
 
     # Set initial odometer only state to original state
     odometer_state = state

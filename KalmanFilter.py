@@ -2,9 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import sin, cos
 from InputGenerator import generateSinusoidAngularInput, generateCircleInput, generateRampInput
+from InputGenerator import generateHeartTrajectory
 
 from StateCalculation import simulateSensorData, next_state
-from Plotting import plot_results
+from Plotting import plot_results, plot_trajectory, printTrajectoryPath
 
 class UnscentedKalmanFilter:
     def __init__(self, state, input):
@@ -29,7 +30,7 @@ class UnscentedKalmanFilter:
         self.P = P
     
     def predict(self, t):
-        self.state = next_state(self.state, self.input[t]) + np.random.normal([0,0,0], [0.1, 0.1, 0.001], 3)
+        self.state = next_state(self.state, self.input[t-1]) + np.random.normal([0,0,0], [0.1, 0.1, 0.001], 3)
         self.P = self.A*self.P*np.transpose(A) + self.sigma_state
         self.output = C.dot(self.state)
         return self.state
@@ -45,21 +46,23 @@ class UnscentedKalmanFilter:
 
 if __name__ == "__main__":
 
-    simulation_length = 100
+    simulation_length = 150
 
     # Input sequence
-    # input = generateSinusoidAngularInput(0.1, 0.1, 1, simulation_length)
-    input = generateRampInput(1, simulation_length)
+    # Good example: simulation length = 150
+    # input = generateSinusoidAngularInput(0.1, float(1)/16, 1, simulation_length)
 
     # Initial state
-    state = np.transpose(np.array([0,0,0]))
+    initial_state, input = generateHeartTrajectory()
+
+    state = np.transpose(np.array(initial_state))
     
     # Covariance matrices
     sigma_x = 0.05
     sigma_y = 0.05
     sigma_theta = 0.25
 
-    odometer_uncertainty = [0.1, 0.1, 0.1]
+    odometer_uncertainty = [0.1, 0.1, 0.2]
     sonar_uncertainty = [0.5,0.5,0.5]
 
     # Tuning parameters
@@ -67,13 +70,13 @@ if __name__ == "__main__":
     sigma_state = np.diag(odometer_uncertainty) # Uncertainity in odometer prediction
     sigma_output = np.diag(sonar_uncertainty) # Uncertainity in sonar measurement
 
-    odometer_noise_variance = [0.05, 0.05, 0.01]
+    odometer_noise_variance = [0.05, 0.05, 0.05]
     sonar_noise_variance = [0.5, 0.5, 0.1]
 
     # Calculate actual states from inputs. Simulate odometer and sonar data
     odometer, sonar, actual = simulateSensorData(state, input, odometer_noise_variance, sonar_noise_variance)
 
-    kalman_output = []
+    kalman_output = [initial_state]
 
     unscented_kalman_filter = UnscentedKalmanFilter(state, input)
 
@@ -81,7 +84,6 @@ if __name__ == "__main__":
         A = np.array(np.identity(3))
         B = np.array([[cos(state[2]), 0], [sin(state[2]), 0], [0,1]])
         C = np.array(np.identity(3))
-        C[2][2] = 0
         D = np.zeros((2,2))
 
         unscented_kalman_filter.set_kalman_matrices(A,B,C,D,P,sigma_state, sigma_output)
