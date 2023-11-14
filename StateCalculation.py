@@ -10,7 +10,8 @@ def simulateSensorData(state, input, odometer_noise_variance, sonar_noise_varian
     odometer_state = state
 
     for i in range(len(input)):
-        state = next_state(state, input[i]) # perfect state update
+        process_noise = np.random.normal([0,0,0], [0,0,0], 3)
+        state = next_state(state, input[i] + process_noise) # perfect state update
 
         odometer_noise = np.random.normal([0,0,0], odometer_noise_variance, 3) # Sensor noise from odometer
 
