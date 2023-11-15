@@ -30,13 +30,13 @@ class UnscentedKalmanFilter:
         self.P = P
     
     def predict(self, t):
-        self.state = next_state(self.state, self.input[t-1]) + np.random.normal([0,0,0], [0.1, 0.1, 0.001], 3)
-        self.P = self.A*self.P*np.transpose(A) + self.sigma_state
+        self.state = next_state(self.state, self.input[t-1])
+        self.P = self.A * self.P * np.transpose(A) + self.sigma_state
         self.output = C.dot(self.state)
         return self.state
 
     def estimate(self, measurement):
-        kalman_gain = self.P*np.transpose(C) * np.linalg.pinv((C*self.P*np.transpose(C) + self.sigma_output))
+        kalman_gain = self.P * np.transpose(C) * np.linalg.pinv((C * self.P * np.transpose(C) + self.sigma_output))
         gain_factor = kalman_gain.dot((measurement - self.output))
         self.state = self.state + gain_factor
         self.P = (np.diag([1,1,1]) - kalman_gain*self.C)*self.P
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         C = np.array(np.identity(3))
         D = np.zeros((2,2))
 
-        unscented_kalman_filter.set_kalman_matrices(A,B,C,D,P,sigma_state, sigma_output)
+        unscented_kalman_filter.set_kalman_matrices(A,B,C,D,P, sigma_state, sigma_output)
         unscented_kalman_filter.predict(idx)
         state, output = unscented_kalman_filter.estimate(sonar_data)
         kalman_output.append(output)
