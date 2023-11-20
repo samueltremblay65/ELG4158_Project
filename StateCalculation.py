@@ -1,5 +1,5 @@
 import numpy as np
-from math import sin, cos
+from math import sin, cos, acos, asin
 
 def simulateSensorData(state, input, odometer_noise_variance, sonar_noise_variance):
     odometer = [state]
@@ -24,8 +24,8 @@ def simulateSensorData(state, input, odometer_noise_variance, sonar_noise_varian
     return odometer, sonar, actual
 
 def next_state(previous_state, input):
-    x_next = previous_state[0] + input[0] * cos(previous_state[2])
-    y_next = previous_state[1] + input[0] * sin(previous_state[2])
+    x_next = previous_state[0] + input[0] * cos(input[1])
+    y_next = previous_state[1] + input[0] * sin(input[1])
     theta_next = previous_state[2] + input[1]
 
     return np.transpose(np.array([x_next, y_next, theta_next]))

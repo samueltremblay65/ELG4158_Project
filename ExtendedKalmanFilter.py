@@ -33,6 +33,7 @@ class ExtendedKalmanFilter:
 
     def estimate(self, measurement):
         self.P = self.A @ self.P @ self.A.T + (self.Q)
+        # print(self.P)
         measurement_residual = measurement - (self.H @ self.state)
         
         S = self.H @ self.P @ self.H.T + self.R
@@ -49,26 +50,30 @@ def main():
 
     # process_noise = np.array([0.01, 0.01, 0.003])
 
-    initial_state, input = generateHeartTrajectory()
+    initial_state, input = generateSinusoidAngularInput(0.2, 0.1, 1, 100)
 
     # Set state to initial state
     state = np.transpose(np.array(initial_state))
 
-    odometer_noise_variance = [0.05, 0.05, 0.05]
-    sonar_noise_variance = [0.5, 0.5, 0.1]
+    odometer_uncertainty = [0.05, 0.05, 0.05]
+    sonar_uncertainty = [0.5,0.5,0.7]
+
+    odometer_noise_variance = [0.05, 0.05, 0.025]
+    sonar_noise_variance = [0.3, 0.3, 0.05]
 
     # Calculate actual states from inputs. Simulate odometer and sonar data
     odometer, sonar, actual = simulateSensorData(state, input, odometer_noise_variance, sonar_noise_variance)
 
-    A = np.array([[1.0, 0, 0],[0, 1.0, 0],[0, 0, 1.0]])   
-    Q = np.array([[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]])              
-    H = np.array([[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]])                      
-    R = np.array([[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]])
+    A = np.array([[1.0, 0, 0],[0, 1.0, 0],[0, 0, 1.0]])
+    H = np.array([[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]])
+
+    Q = np.diag(odometer_uncertainty)
+    R = np.diag(sonar_uncertainty)         
 
     kalman_output = [initial_state]
 
     # Set initial value of P
-    P_initial = np.array([[0.1, 0, 0], [0, 0.1, 0], [0, 0, 0.1]])
+    P_initial = np.array([[0.185, 0, 0], [0, 0.185, 0], [0, 0, 0.214]])
     extended_kalman_filter = ExtendedKalmanFilter(state, input, H, Q, R, P_initial)
 
     for idx, sonar_data in enumerate(sonar):
