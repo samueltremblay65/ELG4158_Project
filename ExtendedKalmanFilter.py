@@ -13,19 +13,15 @@ class ExtendedKalmanFilter:
         self.input = input
         self.output = None
         self.A = None
-        self.B = None
         self.C = None
-        self.D = None
         self.P = P_initial
         self.H = H
         self.Q = Q
         self.R = R
 
-    def set_kalman_matrices(self, A, B, C, D):
+    def set_kalman_matrices(self, A, C):
         self.A = A
-        self.B = B
         self.C = C
-        self.D = D
     
     def predict(self, t):
         self.state = next_state(self.state, self.input[t-1])
@@ -58,7 +54,7 @@ def main():
     odometer_uncertainty = [0.05, 0.05, 0.05]
     sonar_uncertainty = [0.5,0.5,0.7]
 
-    odometer_noise_variance = [0.05, 0.05, 0.025]
+    odometer_noise_variance = [0.1, 0.1, 0.05]
     sonar_noise_variance = [0.3, 0.3, 0.05]
 
     # Calculate actual states from inputs. Simulate odometer and sonar data
@@ -78,11 +74,9 @@ def main():
 
     for idx, sonar_data in enumerate(sonar):
         A = np.array(np.identity(3))
-        B = np.array([[cos(state[2]), 0], [sin(state[2]), 0], [0,1]])
         C = np.array(np.identity(3))
-        D = np.zeros((2,2))
 
-        extended_kalman_filter.set_kalman_matrices(A,B,C,D)
+        extended_kalman_filter.set_kalman_matrices(A,C)
         extended_kalman_filter.predict(idx)
         state, output = extended_kalman_filter.estimate(sonar_data)
         kalman_output.append(output)
