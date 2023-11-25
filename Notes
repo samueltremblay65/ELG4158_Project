@@ -3,3 +3,5 @@ covariance and the Kalman gain will stabilize quickly and then remain constant. 
 this is the case, these parameters can be pre-computed by either running the filter off-line,
 or for example by determining the steady-state value of as described in (Grewal and
 Andrews 2001).
+
+https://mlg.eng.cam.ac.uk/pub/pdf/TurRas10.pdf
