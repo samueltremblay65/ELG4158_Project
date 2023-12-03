@@ -9,15 +9,7 @@ def generateSinusoidAngularInput(a, angular_frequency, linear_velocity, length):
 
     return [0,0,0], inputSequence
 
-def generateCircleInput(angular_rate, linear_velocity, length):
-    inputSequence = np.zeros((length, 2))
-    for i in range(length):
-        inputSequence[i][0] = linear_velocity
-        inputSequence[i][1] = angular_rate
-
-    return [0,0,0] , inputSequence
-
-def generateRampInput(linear_velocity, length):
+def generateLineInput(linear_velocity, length):
     inputSequence = np.zeros((length, 2))
     for i in range(length):
         inputSequence[i][0] = linear_velocity
